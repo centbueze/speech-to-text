@@ -1,0 +1,110 @@
+
+        /* Remove default margin/padding from body and html to eliminate extra space */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: black; /* Set background to black */
+            color: white; /* Set default text color to white */
+        }
+
+        /* Navbar styling */
+        .navbar {
+            padding-top: 0; /* Remove top padding */
+            padding-bottom: 0; /* Remove bottom padding */
+            background-color: black; /* Set navbar background to black */
+            position: sticky; /* Make navbar sticky */
+            top: 0;
+            z-index: 1000; /* Ensure it stays on top */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+        }
+
+        /* Adjust the logo size */
+        .navbar-brand img {
+            width: 40px;
+            height: 40px;
+        }
+
+        /* Make sure the navbar items are aligned properly */
+        .navbar .container-fluid {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Style the company name and icon */
+        .company-info {
+            display: flex;
+            align-items: center;
+            color: white; /* Set text color to white */
+        }
+
+        .company-info img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .company-info span {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Style the navigation links as separate boxes */
+        .navbar-nav .nav-item {
+            margin-left: 10px; /* Adjust the space between items */
+        }
+
+        .navbar-nav .nav-link {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #333; /* Darker background for links */
+            color: white; /* Set link text color to white */
+            transition: all 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: #555; /* Slightly lighter on hover */
+            transform: translateY(-2px); /* Add a slight lift effect */
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2); /* Add shadow on hover */
+        }
+
+        /* Remove extra gap at the top of the navbar */
+        .navbar {
+            margin-bottom: 0; /* Remove margin at the bottom */
+        }
+
+        /* Container for company info */
+.company-info {
+    display: flex;
+    align-items: center; /* Align image and text vertically */
+    color: white;
+}
+
+/* Company Icon */
+.company-info img {
+    width: 40px; /* Set icon size */
+    height: 40px;
+    margin-right: 10px; /* Space between icon and text */
+}
+
+/* Container for company name and position */
+.company-details {
+    display: flex;
+    flex-direction: column; /* Stack text vertically */
+}
+
+/* Company Name (King Tech) */
+.company-details span {
+    font-size: 1.5rem; /* Set the size for company name */
+    font-weight: bold; /* Make it bold */
+}
+
+/* Position (A.I Engineer) */
+.company-details p {
+    font-size: 0.8rem; /* Smaller text for the position */
+    margin-top: 0; /* Remove default margin to keep it closer to the company name */
+    margin-bottom: 0; /* Remove default margin to keep it closer to the company name */
+    color: #bbb; /* Optional: Make the text color lighter for the position */
+}
+

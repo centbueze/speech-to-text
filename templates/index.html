@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <style>
+   
+
+        .container {
+            background-color:rgb(83, 80, 80);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            color: rgb(176, 174, 174);
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: rgb(176, 174, 174);
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        #response {
+            margin-top: 20px;
+            font-size: 18px;
+            color: rgb(255, 251, 251);
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <div class="container">
+        <h1>BrianAI</h1>
+        <input type="text" id="query" placeholder="Ask me anything..." />
+        <button onclick="sendQuery()">Ask</button>
+        <button id="recordButton">Record</button>
+        <button id="stopButton" disabled>Stop</button>
+        <button onclick="clearAll()">Clear</button>
+
+        <div id="response"></div>
+        <div class="loader" id="loader"></div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        // Get user media (microphone access)
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                mediaRecorder.onstop = sendAudioToServer;
+                mediaRecorder.start();
+            } catch (error) {
+                console.error("Error accessing microphone:", error);
+                alert("Error accessing microphone. Please check permissions.");
+            }
+        }
+
+        // Stop recording
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                document.getElementById("recordButton").disabled = false;
+                document.getElementById("stopButton").disabled = true;
+            }
+        }
+
+        // Send recorded audio to the server
+        async function sendAudioToServer() {
+            if (audioChunks.length === 0) {
+                alert("No audio recorded. Please try again.");
+                return;
+            }
+
+            const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            const formData = new FormData();
+            formData.append("audio", audioBlob, "recording.wav");
+
+            const responseDiv = document.getElementById("response");
+            const loader = document.getElementById("loader");
+            responseDiv.innerText = "Processing...";
+            loader.style.display = "inline-block";
+
+            try {
+                const response = await fetch("/process_audio", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                responseDiv.innerText = data.response || data.error || "No response received.";
+            } catch (error) {
+                console.error("Error sending audio to server:", error);
+                responseDiv.innerText = "Error: " + error.message;
+            } finally {
+                loader.style.display = "none";
+                audioChunks = []; // Clear recorded chunks
+            }
+        }
+
+        // Send text query to the server
+        async function sendQuery() {
+            const query = document.getElementById("query").value;
+            if (!query) {
+                alert("Please enter a question!");
+                return;
+            }
+
+            const responseDiv = document.getElementById("response");
+            const loader = document.getElementById("loader");
+            responseDiv.innerText = "Thinking...";
+            loader.style.display = "inline-block";
+
+            try {
+                const response = await fetch("/process", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ query }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                responseDiv.innerText = data.response || data.error || "No response received.";
+            } catch (error) {
+                console.error("Error sending query to server:", error);
+                responseDiv.innerText = "Error: " + error.message;
+            } finally {
+                loader.style.display = "none";
+            }
+        }
+
+        // Clear input and response
+        function clearAll() {
+            document.getElementById("query").value = "";
+            document.getElementById("response").innerText = "";
+        }
+
+        // Event listeners for recording buttons
+        document.getElementById("recordButton").addEventListener("click", () => {
+            startRecording();
+            document.getElementById("recordButton").disabled = true;
+            document.getElementById("stopButton").disabled = false;
+        });
+
+        document.getElementById("stopButton").addEventListener("click", stopRecording);
+    </script>
+
+{% endblock %}
